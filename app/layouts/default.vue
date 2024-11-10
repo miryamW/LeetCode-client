@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
+
 const route = useRoute()
 const appConfig = useAppConfig()
 const { isHelpSlideoverOpen } = useDashboard()
@@ -13,23 +16,22 @@ const links = [{
     shortcuts: ['G', 'H']
   }
 }, {
-  id: 'inbox',
-  label: 'Inbox',
-  icon: 'i-heroicons-inbox',
-  to: '/inbox',
-  badge: '4',
+  id: 'add-question',
+  label: 'Add Question',
+  icon: 'i-heroicons-plus-circle',
+  to: '/add-question',
   tooltip: {
-    text: 'Inbox',
-    shortcuts: ['G', 'I']
+    text: 'Add Question',
+    shortcuts: ['G', 'A']
   }
 }, {
-  id: 'users',
-  label: 'Users',
-  icon: 'i-heroicons-user-group',
-  to: '/users',
+  id: 'questions',
+  label: 'Questions',
+  icon: 'i-heroicons-question-mark-circle',
+  to: '/questions',
   tooltip: {
-    text: 'Users',
-    shortcuts: ['G', 'U']
+    text: 'Questions',
+    shortcuts: ['G', 'Q']
   }
 }, {
   id: 'settings',
@@ -121,7 +123,6 @@ const colors = computed(() => defaultColors.value.map(color => ({ ...color, acti
         <UDivider class="sticky bottom-0" />
 
         <template #footer>
-          <!-- ~/components/UserDropdown.vue -->
           <UserDropdown />
         </template>
       </UDashboardSidebar>
@@ -129,9 +130,7 @@ const colors = computed(() => defaultColors.value.map(color => ({ ...color, acti
 
     <slot />
 
-    <!-- ~/components/HelpSlideover.vue -->
     <HelpSlideover />
-    <!-- ~/components/NotificationsSlideover.vue -->
     <NotificationsSlideover />
 
     <ClientOnly>
