@@ -26,7 +26,12 @@ export interface Member {
   role: 'member' | 'owner'
   avatar: Avatar
 }
-
+export interface Question{
+  Title: string
+  Description: string
+  Level: number
+  ID: string
+}
 export interface Notification {
   id: number
   unread?: boolean

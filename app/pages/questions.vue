@@ -1,71 +1,84 @@
-<template>
-  <div>
-    <h1>Questions List</h1>
-    <ul>
-      <li v-for="question in questions" :key="question.ID">
-        <h3>{{ question.Description }}</h3>
-        <p>Level: {{ question.Level }}</p>
-        
-        <div class="buttons">
-          <button @click="deleteQuestion(question.ID)">Delete</button>
-          <button @click="editQuestion(question.ID)">Edit</button>
-          <button @click="answerQuestion(question.ID)">Answer</button>
-        </div>
-
-        <ul>
-          <li v-for="(test, index) in question.tests" :key="index">
-            <strong>Test {{ index + 1 }}:</strong>
-            <div><strong>Input:</strong> {{ test.Input }}</div>
-            <div><strong>Expected Output:</strong> {{ test.expected_output }}</div>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import type { Question } from '~/types'
+import SettingsMembersList from '~/components/QuestionsList.vue'
+const editingQuestion = ref<Question | null>(null)  // כדי לאחסן את השאלה המועדת לעריכה
 
-const questions = ref<any[]>([]);
+const { data: questions } = await useFetch<Question[]>('http://localhost:8080/questions', { default: () => [] })
 
-const deleteQuestion = (id: string) => {
-  window.location.href = `/delete-question?id=${id}`;
-};
+const q = ref('')
+const isInviteModalOpen = ref(false)
+const isEditModalOpen = ref(false)
+const filteredQuestions = computed(() => {
+  if (!questions.value) return []
+  if(q.value==='') return questions
+  return questions.value.filter((question) => {
+    return (q.value ===''||question.Title && question.Title.search(new RegExp(q.value, 'i')) !== -1) ||
+           (question.Description && question.Description.search(new RegExp(q.value, 'i')) !== -1)
+  })
+})
 
-const editQuestion = (id: string) => {
-  window.location.href = `/update-question?id=${id}`;
-};
 
-const answerQuestion = (id: string) => {
-  window.location.href = `/answer-question?id=${id}`;
-};
+function handleEditQuestion(question: Question) {
+  console.log("bfd");
+  console.log(question);
+  
+  editingQuestion.value = question  // עדכון השאלה המוערכת
+  isEditModalOpen.value = true  // פתיחת המודאל
+}
 
-const fetchQuestions = async () => {
-  try {
-    const response = await fetch('http://localhost:8080/questions');
-    if (!response.ok) {
-      throw new Error('Failed to fetch questions');
-    }
-    const data = await response.json();
-    questions.value = data;
-    console.log(questions)
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-onMounted(() => {
-  fetchQuestions();
-});
 </script>
 
-<style scoped>
-.buttons {
-  margin-top: 10px;
-}
+<template>
+  <UDashboardPanelContent class="pb-24">
+    <UDashboardSection
+      title="Our questions list"
+      description="Contribute and add questions to the database"
+      orientation="horizontal"
+      :ui="{ container: 'lg:sticky top-2' }"
+    >
+      <template #links>
+        <UButton
+          label="Add question"
+          color="black"
+          @click="isInviteModalOpen = true"
+        />
+      </template>
 
-.buttons button {
-  margin-right: 10px;
-}
-</style>
+      <UCard
+        :ui="{ header: { padding: 'p-4 sm:px-6' }, body: { padding: '' } }"
+        class="min-w-0"
+      >
+        <template #header>
+          <UInput
+            v-model="q"
+            icon="i-heroicons-magnifying-glass"
+            placeholder="Search members"
+            autofocus
+          />
+        </template>
+
+        <!-- ~/components/settings/MembersList.vue -->
+       <QuestionsList :questions="filteredQuestions.value" @editQuestion="handleEditQuestion" />
+      </UCard>
+    </UDashboardSection>
+
+    <UDashboardModal
+      v-model="isInviteModalOpen"
+      title="Add question"
+      description="Add new question"
+      :ui="{ width: 'sm:max-w-md' }"
+    >
+      <!-- ~/components/settings/MembersForm.vue -->
+      <QuestionsForm @close="isInviteModalOpen = false" />
+    </UDashboardModal>
+    <UDashboardModal
+      v-model="isEditModalOpen"
+      title="Edit question"
+      description="Edit the question details"
+      :ui="{ width: 'sm:max-w-md' }"
+    >
+      <!-- ~/components/settings/MembersForm.vue -->
+      <QuestionsForm :question="editingQuestion" @close="isEditModalOpen = false" />
+    </UDashboardModal>
+  </UDashboardPanelContent>
+</template>

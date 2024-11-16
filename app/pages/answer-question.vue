@@ -1,4 +1,6 @@
 <template>
+  <UDashboardPanelContent class="pb-24">
+
   <div :class="{'loading': isLoading}">
     <h1>Answer Question</h1>
 
@@ -17,18 +19,19 @@
 
     <!-- Language Tabs -->
     <div class="tabs">
-      <button
+      <UButton
+          label="Python"
+          color="black"
         :class="{ active: selectedLanguage === 'python' }"
         @click="selectedLanguage = 'python'"
-      >
-        Python
-      </button>
-      <button
+     
+      />         
+      <UButton
+       label="Java"
+        color="black"
         :class="{ active: selectedLanguage === 'java' }"
         @click="selectedLanguage = 'java'"
-      >
-        Java
-      </button>
+      />
     </div>
 
     <!-- Answer Form -->
@@ -54,6 +57,7 @@
     </form>
 
     <!-- Test Results (Displayed after running tests) -->
+
     <div v-if="results.message.length > 0" class="test-results">
       <h2>Test Results:</h2>
       <ul>
@@ -68,7 +72,13 @@
             borderRadius: '5px',
           }"
         >
-          Test {{ result.test_number }} - {{ result.passed ? 'Passed' : 'Failed' }}: {{ result.comments }}
+          Test {{ result.test_number }} - {{ result.passed ? 'Passed' : 'Failed' }}: 
+          <div><strong>Input:</strong> {{ result.Input }}</div>
+          <div><strong>Output:</strong> {{ result.output }}</div>
+          <div><strong>Expected Output:</strong> {{ result.ExpectedOutput }}</div>
+          <div v-if="result.comments && result.comments.startsWith('compilation error')">
+            <strong>!</strong> {{ result.comments }}
+          </div>
         </li>
       </ul>
     </div>
@@ -79,6 +89,8 @@
       <p>Processing...</p>
     </div>
   </div>
+</UDashboardPanelContent>
+
 </template>
 
 <script setup lang="ts">
@@ -197,9 +209,9 @@ const runTests = async () => {
   height: 100%;
   background-color: rgba(255, 255, 255, 0.7); /* Lighten background */
   pointer-events: none; /* Disable interactions with elements behind */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  /* display: flex;
+ justify-content: center;
+align-items: center; */
   z-index: 9999; /* Ensure it stays on top of all other elements */
 }
 

@@ -42,9 +42,6 @@ const categories = computed(() => [{
   title: 'Navigation',
   items: [
     { shortcuts: ['G', 'H'], name: 'Go to Home' },
-    { shortcuts: ['G', 'I'], name: 'Go to Inbox' },
-    { shortcuts: ['G', 'U'], name: 'Go to Users' },
-    { shortcuts: ['G', 'S'], name: 'Go to Settings' }
   ]
 }, {
   title: 'Inbox',
