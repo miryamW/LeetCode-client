@@ -3,7 +3,6 @@ import { defineProps, PropType, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Question } from '~/types'
 
-// קבלת הפרופס מההורה
 defineProps({
   questions: {
     type: Array as PropType<Question[]> ,
@@ -19,10 +18,9 @@ defineProps({
   }
 })
 
-// הגדרת emit בצורה הנכונה בתוך <script setup>
 const emit = defineEmits<{
   (event: 'update:isEditModalOpen', value: boolean): void;
-  (event: 'editQuestion', question: Question): void;  // emit נוסף להעברת פרטי השאלה
+  (event: 'editQuestion', question: Question): void;  
 }>()
 
 const router = useRouter()
@@ -33,9 +31,8 @@ function getItems(question: Question) {
     label: 'Edit question',
     click: () => {
       editingQuestion.value = question
-      // עדכון הערך של isEditModalOpen להפעיל את המודאל
-      emit('update:isEditModalOpen', true)  // הפעלת המודאל
-      emit('editQuestion', question)  // שליחת פרטי השאלה להורה
+      emit('update:isEditModalOpen', true)  
+      emit('editQuestion', question)  
     }
   }, {
     label: 'Remove question',

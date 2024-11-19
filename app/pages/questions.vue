@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Question } from '~/types'
 import SettingsMembersList from '~/components/QuestionsList.vue'
-const editingQuestion = ref<Question | null>(null)  // כדי לאחסן את השאלה המועדת לעריכה
+const editingQuestion = ref<Question | null>(null)  
 
 const { data: questions } = await useFetch<Question[]>('http://localhost:8080/questions', { default: () => [] })
 
@@ -22,8 +22,8 @@ function handleEditQuestion(question: Question) {
   console.log("bfd");
   console.log(question);
   
-  editingQuestion.value = question  // עדכון השאלה המוערכת
-  isEditModalOpen.value = true  // פתיחת המודאל
+  editingQuestion.value = question  
+  isEditModalOpen.value = true  
 }
 
 </script>

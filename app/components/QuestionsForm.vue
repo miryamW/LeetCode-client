@@ -20,7 +20,6 @@ const state = reactive({
   ]
 })
 
-// אם יש פרופס של question, נטען אותו לתוך state
 watch(() => props.question, (newQuestion) => {
   console.log("OK it is workkk!");
   console.log(newQuestion);
@@ -42,7 +41,6 @@ const validate = (state: any): FormError[] => {
   return errors
 }
 
-// פונקציית שליחה
 async function onSubmit(event: FormSubmitEvent<any>) {
   console.log(event.data)
   try {
