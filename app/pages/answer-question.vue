@@ -95,7 +95,7 @@ onMounted(async () => {
   await fetchQuestionDetails(questionId.value);
 
   editorInstance = monaco.editor.create(document.querySelector('.editor-container') as HTMLElement, {
-    value: '',
+    value: '#your first-called function required to be first',
     language: selectedLanguage.value,
     theme: 'vs-dark',
   });

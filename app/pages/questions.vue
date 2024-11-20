@@ -4,17 +4,11 @@ import SettingsMembersList from '~/components/QuestionsList.vue'
 const editingQuestion = ref<Question | null>(null)  
 
 const { data: questions } = await useFetch<Question[]>('http://localhost:8080/questions', { default: () => [] })
-
 const q = ref('')
 const isInviteModalOpen = ref(false)
 const isEditModalOpen = ref(false)
 const filteredQuestions = computed(() => {
-  if (!questions.value) return []
-  if(q.value==='') return questions
-  return questions.value.filter((question) => {
-    return (q.value ===''||question.Title && question.Title.search(new RegExp(q.value, 'i')) !== -1) ||
-           (question.Description && question.Description.search(new RegExp(q.value, 'i')) !== -1)
-  })
+   return questions
 })
 
 
