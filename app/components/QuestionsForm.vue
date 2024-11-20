@@ -20,10 +20,7 @@ const state = reactive({
   ]
 })
 
-watch(() => props.question, (newQuestion) => {
-  console.log("OK it is workkk!");
-  console.log(newQuestion);
-  
+watch(() => props.question, (newQuestion) => {  
   if (newQuestion) {
     state.title = newQuestion.Title
     state.description = newQuestion.Description
@@ -37,12 +34,12 @@ const validate = (state: any): FormError[] => {
   if (!state.title) errors.push({ path: 'title', message: 'Please enter a title.' })
   if (!state.description) errors.push({ path: 'description', message: 'Please enter a description.' })
   if (state.level < 1 || state.level > 5) errors.push({ path: 'level', message: 'Level should be between 1 and 5.' })
-  if (!state.tests || state.tests.length === 0) errors.push({ path: 'tests', message: 'At least one test is required.' })
+  if (!state.tests || state.tests.length === 0 || state.tests[0].Input == ""||state.tests[0].ExpectedOutput == "") errors.push({ path: 'tests', message: 'At least one test is required.' })
+  
   return errors
 }
 
 async function onSubmit(event: FormSubmitEvent<any>) {
-  console.log(event.data)
   try {
     const url = props.question ? `http://localhost:8080/questions?id=${props.question.ID}` : 'http://localhost:8080/questions'
     const method = props.question ? 'PUT' : 'POST'

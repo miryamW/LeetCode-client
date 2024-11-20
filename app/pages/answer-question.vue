@@ -6,10 +6,10 @@
         <h2>{{ question.Description }}</h2>
         <p><strong>Level:</strong> {{ question.Level }}</p>
         <ul>
-          <li v-for="(test, index) in question.tests" :key="index">
-            <strong>Test {{ index + 1 }}:</strong>
-            <div><strong>Input:</strong> {{ test.Input }}</div>
-            <div><strong>Expected Output:</strong> {{ test.expected_output }}</div>
+          <li>
+            <strong>Example:</strong>
+            <div>Input: {{question.Tests[0].Input}}</div>
+            <div>Expected Output: {{question.Tests[0].ExpectedOutput}}</div>
           </li>
         </ul>
       </div>
@@ -51,10 +51,10 @@
             }"
           >
             Test {{ result.test_number }} - {{ result.passed ? 'Passed' : 'Failed' }}: 
-            <div><strong>Input:</strong> {{ result.Input }}</div>
+            <div><strong>Input:</strong> {{ result.input }}</div>
             <div><strong>Output:</strong> {{ result.output }}</div>
-            <div><strong>Expected Output:</strong> {{ result.ExpectedOutput }}</div>
-            <div v-if="result.comments && result.comments.startsWith('compilation error')">
+            <div><strong>Expected Output:</strong> {{ result.expectedOutput }}</div>
+            <div v-if="result.comments && result.comments!=''">
               <strong>!</strong> {{ result.comments }}
             </div>
           </li>
@@ -76,12 +76,17 @@ import { useRoute } from 'vue-router';
 
 const pythonAnswer = ref('');
 const javaAnswer = ref('');
-const results = ref<{ message: any[] }>({ message: [] });
+const results = ref<{ message: any[], errors: ErrorLine[] }>({ message: [], errors: [] });
 const questionId = ref<string>('');
 const question = ref<any>(null);
 const selectedLanguage = ref<string>('python');
 const isLoading = ref(false);
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null;
+
+interface ErrorLine {
+  line: string;
+  message: string;
+}
 
 onMounted(async () => {
   const route = useRoute();
@@ -97,7 +102,7 @@ onMounted(async () => {
 
   watch(selectedLanguage, (newLang) => {
     if (editorInstance) {
-      const newValue = newLang === 'java' ? 'public class Main {\n\n}' : '';
+      const newValue = newLang === 'java' ? '// your first-called function required to be first\npublic class Main {\n\n}' : '# your first-called function required to be first'
       editorInstance.setValue(newValue);
       monaco.editor.setModelLanguage(editorInstance.getModel()!, newLang);
     }
@@ -120,11 +125,28 @@ const fetchQuestionDetails = async (id: string) => {
 
 const runTests = async () => {
   isLoading.value = true;
-
   results.value.message = [];
+  results.value.errors = [];
+
+  const solution = editorInstance ? editorInstance.getValue() : '';
+
+  if (selectedLanguage.value === 'python') {
+    const functionRegex = /\bdef\b\s+\w+/; 
+    if (!functionRegex.test(solution)) {
+      alert('Required a function in python');
+      isLoading.value = false;
+      return;
+    }
+  } else if (selectedLanguage.value === 'java') {
+    const functionRegex = /\bpublic\b\s+(?!class)\w+/; 
+    if (!functionRegex.test(solution)) {
+      alert('Required a public function in java');
+      isLoading.value = false;
+      return;
+    }
+  }
 
   try {
-    const solution = editorInstance ? editorInstance.getValue() : '';
     const response = await fetch('http://localhost:8080/questions/runTests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -136,6 +158,7 @@ const runTests = async () => {
     });
     const data = await response.json();
     results.value = data;
+
   } catch (error) {
     console.error('Error running tests:', error);
     alert('Failed to run tests');
@@ -143,6 +166,7 @@ const runTests = async () => {
     isLoading.value = false;
   }
 };
+
 </script>
 
 <style scoped>
@@ -170,6 +194,10 @@ const runTests = async () => {
   background-color: #007bff;
   color: white;
   border-color: #007bff;
+}
+.error-line {
+  background-color: rgba(255, 0, 0, 0.3); /* צבע רקע אדום בהיר */
+  border: 5px solid red; /* פס אדום בצד השמאלי של השורה */
 }
 
 .test-results {
@@ -215,5 +243,9 @@ const runTests = async () => {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.error-line {
+  background-color: rgba(255, 0, 0, 0.3);
 }
 </style>

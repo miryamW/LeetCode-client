@@ -26,6 +26,10 @@ export interface Member {
   role: 'member' | 'owner'
   avatar: Avatar
 }
+export interface Test{
+  Input: string,
+  ExpeectedOutput:string
+}
 export interface Question{
   Title: string
   Description: string
@@ -38,6 +42,7 @@ export interface Notification {
   sender: User
   body: string
   date: string
+  tests: Test[]
 }
 
 export type Period = 'daily' | 'weekly' | 'monthly'

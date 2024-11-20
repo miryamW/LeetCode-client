@@ -18,10 +18,7 @@ const filteredQuestions = computed(() => {
 })
 
 
-function handleEditQuestion(question: Question) {
-  console.log("bfd");
-  console.log(question);
-  
+function handleEditQuestion(question: Question) {  
   editingQuestion.value = question  
   isEditModalOpen.value = true  
 }
@@ -52,7 +49,7 @@ function handleEditQuestion(question: Question) {
           <UInput
             v-model="q"
             icon="i-heroicons-magnifying-glass"
-            placeholder="Search members"
+            placeholder="Search questions"
             autofocus
           />
         </template>

@@ -18,8 +18,6 @@ const validate = (state: any): FormError[] => {
 
 async function onSubmit(event: FormSubmitEvent<any>) {
   // Do something with data
-  console.log(event.data)
-
   emit('close')
 }
 </script>

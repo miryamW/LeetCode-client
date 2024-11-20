@@ -75,7 +75,7 @@ async function removeQuestion(questionId: string) {
             {{ question.Title }}
           </p>
           <p class="text-gray-500 dark:text-gray-400 truncate">
-            {{ question.Description }}
+           <strong>Level:</strong> {{ question.Level }}
           </p>
         </div>
       </div>
