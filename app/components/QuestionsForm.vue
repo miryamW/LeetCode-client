@@ -33,6 +33,7 @@ watch(() => props.question, (newQuestion) => {
   }
 }, { immediate: true })
 
+
 const validateTypeFormat = (typeStr: string, dataStr: string): string | null => {
   const types = typeStr.split(',')
   const data = dataStr.split(',')
@@ -58,7 +59,7 @@ const validateTypeFormat = (typeStr: string, dataStr: string): string | null => 
       } else if (type === 'double') {
         if (!/^-?\d+(\.\d+)?$/.test(datum)) return `Expected double for type ${type} but got ${datum}`
       } else if (type === 'string') {
-        if (typeof datum !== 'string') return `Expected string for type ${type} but got ${datum}`
+        if (!/^".*"$/.test(datum)) return `Expected string for type ${type} but got ${datum}. String must be enclosed in double quotes.`
       } else {
         return `Unsupported input type: ${type}`
       }
@@ -66,6 +67,7 @@ const validateTypeFormat = (typeStr: string, dataStr: string): string | null => 
   }
   return null
 }
+
 
 const validate = (state: any): FormError[] => {
   const errors: FormError[] = []
@@ -113,6 +115,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     
     alert(props.question ? 'Question updated successfully' : 'Question added successfully')
     emit('close')
+    emit('updateQuestion')  // emit event to notify about the update
   } catch (error) {
     console.error('Error saving question:', error)
     alert('Failed to save question')
@@ -137,11 +140,11 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     </UFormGroup>
 
     <UFormGroup label="Level" name="level">
-      <UInput v-model="state.level" type="number" min="1" max="5" placeholder="Enter difficulty level" />
+      <UInput v-model="state.level" type="number" min="1" max="5" placeholder="Enter difficulty level from 1 to 5" />
     </UFormGroup>
 
     <UFormGroup label="Input Types" name="inputTypes">
-      <UInput v-model="state.inputTypes" placeholder="Enter types of inputs (e.g., int,string,double)" />
+      <UInput v-model="state.inputTypes" placeholder="Enter types of inputs (e.g., int, string, double) - arrays like this: int[] and matrices like this: int[][]" />
     </UFormGroup>
 
     <UFormGroup label="Output Type" name="outputType">
@@ -151,11 +154,11 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     <UFormGroup label="Tests" name="tests">
       <div v-for="(test, index) in state.tests" :key="index" class="space-y-2">
         <UFormGroup label="Test Input" :name="`tests[${index}].Input`">
-          <UInput v-model="test.Input" placeholder="Enter input for test" />
+          <UInput v-model="test.Input" placeholder="Enter input for test - arrays like this: [data, data], matrices like this: [[data, data], [data, data]], and strings inside quotation marks" />
         </UFormGroup>
 
         <UFormGroup label="Expected Output" :name="`tests[${index}].ExpectedOutput`">
-          <UInput v-model="test.ExpectedOutput" placeholder="Enter expected output for test" />
+          <UInput v-model="test.ExpectedOutput" placeholder="Enter expected output for test - arrays like this: [data, data], matrices like this: [[data, data], [data, data]], and strings inside quotation marks" />
         </UFormGroup>
       </div>
       <UButton label="Add Test" color="blue" @click="state.tests.push({ Input: '', ExpectedOutput: '' })" />

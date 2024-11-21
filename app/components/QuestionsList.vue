@@ -21,6 +21,7 @@ defineProps({
 const emit = defineEmits<{
   (event: 'update:isEditModalOpen', value: boolean): void;
   (event: 'editQuestion', question: Question): void;  
+  (event: 'refreshQuestions'): void; 
 }>()
 
 const router = useRouter()
@@ -53,7 +54,9 @@ async function removeQuestion(questionId: string) {
       throw new Error('Failed to delete question')
     }
     alert('Question deleted successfully')
+    emit('refreshQuestions')
     router.push({ path: router.currentRoute.value.path })
+    
   } catch (error) {
     console.error('Error deleting question:', error)
     alert('Failed to delete question')
@@ -68,6 +71,8 @@ async function removeQuestion(questionId: string) {
       v-for="(question, index) in questions"
       :key="index"
       class="flex items-center justify-between gap-3 py-3 px-4 sm:px-6"
+      @click="router.push({ name: 'answer-question', query: { id: question.ID } })"
+
     >
       <div class="flex items-center gap-3 min-w-0">
         <div class="text-sm min-w-0">
@@ -81,8 +86,9 @@ async function removeQuestion(questionId: string) {
       </div>
 
       <div class="flex items-center gap-3">
-        <UDropdown :items="getItems(question)" position="bottom-end">
+        <UDropdown :items="getItems(question)" position="bottom-end" @click.stop>
           <UButton icon="i-heroicons-ellipsis-vertical" color="gray" variant="ghost" />
+          
         </UDropdown>
       </div>
     </li>

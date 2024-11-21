@@ -1,26 +1,49 @@
 <script setup lang="ts">
 import type { Question } from '~/types'
-import SettingsMembersList from '~/components/QuestionsList.vue'
+import QuestionsList from '~/components/QuestionsList.vue'
 const editingQuestion = ref<Question | null>(null)  
 
-const { data: questions } = await useFetch<Question[]>('http://localhost:8080/questions', { default: () => [] })
+const { data: questions, refresh} = await useFetch<Question[]>('http://localhost:8080/questions', { default: () => [] })
 const q = ref('')
 const isInviteModalOpen = ref(false)
 const isEditModalOpen = ref(false)
+const sortType = ref('')
+
 const filteredQuestions = computed(() => {
-  if (!q.value) {
-    return questions.value;
+  let result = questions.value
+
+  if (q.value) {
+    result = result.filter((question) => {
+      return question.Title.search(new RegExp(q.value, 'i')) !== -1;
+    })
   }
 
-  return questions.value.filter((question) => {
-    return question.Title.search(new RegExp(q.value, 'i')) !== -1;
-  });
-});
+  if (sortType.value === 'abc') {
+    result = result.slice().sort((a, b) => a.Title.localeCompare(b.Title))
+  } else if (sortType.value === 'level') {
+    result = result.slice().sort((a, b) => a.Level - b.Level)
+  }
 
+  return result
+})
+
+function handleRefreshQuestions() {
+  refresh()
+}
 function handleEditQuestion(question: Question) {  
   editingQuestion.value = question  
   isEditModalOpen.value = true  
 }
+
+function setSortType(type: string) {
+  sortType.value = type
+}
+
+watch([isInviteModalOpen, isEditModalOpen], ([inviteOpen, editOpen]) => {
+  if (!inviteOpen && !editOpen) {
+    refresh()  
+  }
+})
 
 </script>
 
@@ -51,10 +74,13 @@ function handleEditQuestion(question: Question) {
             placeholder="Search questions"
             autofocus
           />
+          <div class="flex space-x-2 mt-2">
+            <UButton label="Sort by ABC" @click="setSortType('abc')" />
+            <UButton label="Sort by Level" @click="setSortType('level')" />
+          </div>
         </template>
 
-        <!-- ~/components/settings/MembersList.vue -->
-       <QuestionsList :questions="filteredQuestions" @editQuestion="handleEditQuestion" />
+        <QuestionsList :questions="filteredQuestions" @editQuestion="handleEditQuestion"   @refreshQuestions="handleRefreshQuestions"/>
       </UCard>
     </UDashboardSection>
 
@@ -64,7 +90,6 @@ function handleEditQuestion(question: Question) {
       description="Add new question"
       :ui="{ width: 'sm:max-w-md' }"
     >
-      <!-- ~/components/settings/MembersForm.vue -->
       <QuestionsForm @close="isInviteModalOpen = false" />
     </UDashboardModal>
     <UDashboardModal
@@ -73,7 +98,6 @@ function handleEditQuestion(question: Question) {
       description="Edit the question details"
       :ui="{ width: 'sm:max-w-md' }"
     >
-      <!-- ~/components/settings/MembersForm.vue -->
       <QuestionsForm :question="editingQuestion" @close="isEditModalOpen = false" />
     </UDashboardModal>
   </UDashboardPanelContent>
