@@ -15,6 +15,8 @@ const state = reactive({
   title: '',
   description: '',
   level: 1,
+  inputTypes: '',
+  outputType: '',
   tests: [
     { Input: '', ExpectedOutput: '' }
   ]
@@ -25,6 +27,8 @@ watch(() => props.question, (newQuestion) => {
     state.title = newQuestion.Title
     state.description = newQuestion.Description
     state.level = newQuestion.Level
+    state.inputTypes = newQuestion.InputTypes || ''
+    state.outputType = newQuestion.OutputType || ''
     state.tests = newQuestion.Tests || [{ Input: '', ExpectedOutput: '' }]
   }
 }, { immediate: true })
@@ -34,21 +38,29 @@ const validate = (state: any): FormError[] => {
   if (!state.title) errors.push({ path: 'title', message: 'Please enter a title.' })
   if (!state.description) errors.push({ path: 'description', message: 'Please enter a description.' })
   if (state.level < 1 || state.level > 5) errors.push({ path: 'level', message: 'Level should be between 1 and 5.' })
-  if (!state.tests || state.tests.length === 0 || state.tests[0].Input == ""||state.tests[0].ExpectedOutput == "") errors.push({ path: 'tests', message: 'At least one test is required.' })
-
+  if (!state.inputTypes) errors.push({ path: 'inputTypes', message: 'Please enter input types.' })
+  if (!state.outputType) errors.push({ path: 'outputType', message: 'Please enter output type.' })
+  if (!state.tests || state.tests.length === 0 || state.tests[0].Input == "" || state.tests[0].ExpectedOutput == "") errors.push({ path: 'tests', message: 'At least one test is required.' })
   
   return errors
 }
 
 async function onSubmit(event: FormSubmitEvent<any>) {
-  console.log(event.data)
   try {
     const url = props.question ? `http://localhost:8080/questions?id=${props.question.ID}` : 'http://localhost:8080/questions'
     const method = props.question ? 'PUT' : 'POST'
     
     const response = await useFetch(url, {
       method: method,
-      body: event.data
+      body: {
+        ...event.data,
+        Title: state.title,
+        Description: state.description,
+        Level: state.level,
+        InputTypes: state.inputTypes,
+        OutputType: state.outputType,
+        Tests: state.tests
+      }
     })
     
     alert(props.question ? 'Question updated successfully' : 'Question added successfully')
@@ -80,9 +92,16 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       <UInput v-model="state.level" type="number" min="1" max="5" placeholder="Enter difficulty level" />
     </UFormGroup>
 
+    <UFormGroup label="Input Types" name="inputTypes">
+      <UInput v-model="state.inputTypes" placeholder="Enter types of inputs (e.g., int,string,double)" />
+    </UFormGroup>
+
+    <UFormGroup label="Output Type" name="outputType">
+      <UInput v-model="state.outputType" placeholder="Enter type of output (e.g., int)" />
+    </UFormGroup>
+
     <UFormGroup label="Tests" name="tests">
       <div v-for="(test, index) in state.tests" :key="index" class="space-y-2">
-        <p>Inputs should be separated by commas and their type can be: int, string, double, array & matrix.</p>
         <UFormGroup label="Test Input" name="input">
           <UInput v-model="test.Input" placeholder="Enter input for test" />
         </UFormGroup>
