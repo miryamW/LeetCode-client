@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, PropType, ref } from 'vue'
+import { defineProps, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Question } from '~/types'
 

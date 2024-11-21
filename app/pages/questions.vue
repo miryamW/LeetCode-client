@@ -8,9 +8,14 @@ const q = ref('')
 const isInviteModalOpen = ref(false)
 const isEditModalOpen = ref(false)
 const filteredQuestions = computed(() => {
-   return questions
-})
+  if (!q.value) {
+    return questions.value;
+  }
 
+  return questions.value.filter((question) => {
+    return question.Title.search(new RegExp(q.value, 'i')) !== -1;
+  });
+});
 
 function handleEditQuestion(question: Question) {  
   editingQuestion.value = question  
@@ -49,7 +54,7 @@ function handleEditQuestion(question: Question) {
         </template>
 
         <!-- ~/components/settings/MembersList.vue -->
-       <QuestionsList :questions="filteredQuestions.value" @editQuestion="handleEditQuestion" />
+       <QuestionsList :questions="filteredQuestions" @editQuestion="handleEditQuestion" />
       </UCard>
     </UDashboardSection>
 

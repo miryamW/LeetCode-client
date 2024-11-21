@@ -35,6 +35,8 @@ export interface Question{
   Description: string
   Level: number
   ID: string
+  InputTypes: string
+  Outputtype: string 
 }
 export interface Notification {
   id: number
