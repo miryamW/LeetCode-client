@@ -3,7 +3,7 @@ import type { Question } from '~/types'
 import QuestionsList from '~/components/QuestionsList.vue'
 const editingQuestion = ref<Question | null>(null)  
 
-const { data: questions, refresh} = await useFetch<Question[]>('http://localhost:8080/questions', { default: () => [] })
+const { data: questions, refresh} = await useFetch<Question[]>(`http://localhost:8080/questions`, { default: () => [] })
 const q = ref('')
 const isInviteModalOpen = ref(false)
 const isEditModalOpen = ref(false)

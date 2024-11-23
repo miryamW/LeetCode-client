@@ -102,24 +102,54 @@ const generateFunctionSignature = (title: string, inputTypes: string, outputType
       case 'double':
         varName = `dou${index + 1}`;
         break;
-      case 'string':
+      case 'string': // Keep lowercase for user input
         varName = `str${index + 1}`;
+        type = 'String'; // Convert to uppercase for function signature
         break;
-      case 'string[]':
+      case 'string[]': // Keep lowercase for user input
+        varName = `arr${index + 1}`;
+        type = 'String[]'; // Convert to uppercase for function signature
+        break;
+      case 'string[][]': // Keep lowercase for user input
+        varName = `mat${index + 1}`;
+        type = 'String[][]'; // Convert to uppercase for function signature
+        break;
+      case 'int[]':
+          varName = `arr${index + 1}`
+      break;
+      case 'boolean': // Add case for boolean
+        varName = `bool${index + 1}`;
+        break;
+      case 'boolean[]': // Add case for boolean array
         varName = `arr${index + 1}`;
         break;
-      case 'matrix':
+       case 'boolean[][]': // Add case for boolean array
         varName = `mat${index + 1}`;
         break;
+      case 'double[]':
+          varName = `arr${index + 1}`
+      break;
+            case 'double[]':
+          varName = `arr${index + 1}`
+      break;
+      case 'int[][]':
+          varName = `mat${index + 1}`
+      break;
+      case 'double[][]':
+          varName = `mat${index + 1}`
       default:
         varName = `param${index + 1}`;
         break;
     }
     return type.trim() !== '' && language === 'java' ? `${type.trim()} ${varName}` : varName;
   });
-
   const inputSignature = inputTypesArray.join(', ');
-
+  if(outputType == 'string')
+    outputType = 'String'
+  else if(outputType == 'string[]')
+    outputType = 'String[]'
+  else if(outputType == 'string[][]')
+    outputType = 'String[][]'
   if (language === 'python') {
     return `def ${functionName}(${inputSignature}):`;
   }
@@ -136,9 +166,7 @@ onMounted(async () => {
   const route = useRoute();
   questionId.value = route.query.id as string;
 
-  await fetchQuestionDetails(questionId.value);
-  console.log(question.value);
-  
+  await fetchQuestionDetails(questionId.value);  
   const functionSignaturePython = generateFunctionSignature(
     question.value.Title,
     question.value.InputTypes,
@@ -215,7 +243,7 @@ const runTests = async () => {
   }
 
   try {
-    const response = await fetch('http://localhost:8080/questions/runTests', {
+    const response = await fetch(`http://localhost:8080/questions/runTests`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
